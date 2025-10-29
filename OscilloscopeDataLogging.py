@@ -21,6 +21,8 @@ import pyvisa
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
+from datetime import datetime
 
 # --- Configuration ---
 # TODO: Replace with your oscilloscope's VISA resource string.
@@ -146,6 +148,30 @@ def plot_waveform(voltages, time_interval):
     plt.xlim(time_axis[0] * 1e3, time_axis[-1] * 1e3)
     plt.show()
 
+def save_waveform_csv(voltages, time_interval, filename=None):
+    """Save time (s) and voltage (V) columns to a CSV file."""
+    if voltages is None or time_interval is None:
+        print("No data to save.")
+        return None
+
+    num_points = len(voltages)
+    time_axis = np.arange(0, num_points * time_interval, time_interval)[:num_points]
+
+    if filename is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"waveform_{timestamp}.csv"
+
+    try:
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['time_s', 'voltage_V'])
+            for t, v in zip(time_axis, voltages):
+                writer.writerow([f"{t:.12e}", f"{v:.12e}"])
+        print(f"Saved waveform to: {filename}")
+        return filename
+    except Exception as e:
+        print(f"Failed to save CSV: {e}")
+        return None
 
 def main():
     """Main function to connect, acquire, and plot."""
@@ -159,6 +185,10 @@ def main():
         # Get the data
         voltages, time_interval = get_waveform_data(scope, CHANNEL_TO_QUERY)
         
+        if voltages is None:
+            scope.close()
+            return
+
         # Split voltages into two halves
         mid = len(voltages) // 2
         first_half = voltages[:mid]
@@ -175,6 +205,9 @@ def main():
 
         # Plot the data
         plot_waveform(voltages, time_interval)
+
+        # Save to CSV (in the current working directory)
+        save_waveform_csv(voltages, time_interval)
 
 if __name__ == "__main__":
     main()
