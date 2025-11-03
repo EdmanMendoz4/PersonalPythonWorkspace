@@ -173,6 +173,18 @@ def save_waveform_csv(voltages, time_interval, filename=None):
         print(f"Failed to save CSV: {e}")
         return None
 
+def analyze_waveform(voltages):
+    """Analyze the waveform to compute impedance characteristics."""
+    # Split voltages into two halves
+    mid = len(voltages) // 2
+    first_half = voltages[:mid]
+    second_half = voltages[mid:]
+
+    vpp_first = first_half.max() - first_half.min()
+    vpp_second = second_half.max() - second_half.min()
+    print(f"Vpp (first half): {vpp_first:.3f} V")
+    print(f"Vpp (second half): {vpp_second:.3f} V")
+
 def main():
     """Main function to connect, acquire, and plot."""
     # Initialize the VISA resource manager
@@ -188,16 +200,8 @@ def main():
         if voltages is None:
             scope.close()
             return
-
-        # Split voltages into two halves
-        mid = len(voltages) // 2
-        first_half = voltages[:mid]
-        second_half = voltages[mid:]
-
-        vpp_first = first_half.max() - first_half.min()
-        vpp_second = second_half.max() - second_half.min()
-        print(f"Vpp (first half): {vpp_first:.3f} V")
-        print(f"Vpp (second half): {vpp_second:.3f} V")
+        
+        analyze_waveform(voltages)
         
         # Close the connection to the instrument
         scope.close()
