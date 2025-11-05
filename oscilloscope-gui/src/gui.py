@@ -4,6 +4,7 @@ import sys
 import io
 import pyvisa
 from oscilloscope import find_instrument, get_waveform_data, save_waveform_csv
+from sine_fit import fit_waveform
 
 class OscilloscopeGUI:
     def __init__(self, master):
@@ -15,6 +16,12 @@ class OscilloscopeGUI:
         self.resource_string = Entry(master, width=30)
         self.resource_string.insert(0, 'ASRL5::INSTR')
         self.resource_string.pack(pady=10)
+
+        # V Amplitude input (integer). Value will be divided by 1_000_000_000 and passed as i_peak.
+        Label(master, text="V Amplitude (integer)").pack()
+        self.v_amp_entry = Entry(master, width=15)
+        self.v_amp_entry.insert(0, "1")
+        self.v_amp_entry.pack(pady=(0,10))
 
         self.start_stop_button = Button(master, text="Start/Stop Communication", command=self.toggle_communication)
         self.start_stop_button.pack(pady=5)
@@ -84,7 +91,15 @@ class OscilloscopeGUI:
             if voltages is not None:
                 file = save_waveform_csv(voltages, time_interval)
                 if file:
+                    # Read V Amplitude, convert to integer, divide by 1e9 for i_peak
+                    try:
+                        v_amp_int = int(self.v_amp_entry.get().strip())
+                    except Exception:
+                        print("Invalid V Amplitude input; using 10")
+                        v_amp_int = 10
+                    i_peak = v_amp_int / 1_000_000_000
                     print(f"Waveform saved as {file}")
+                    fit_waveform(file, i_peak=i_peak)
                 else:
                     print("Failed to save waveform data.")
 

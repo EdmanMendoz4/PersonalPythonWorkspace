@@ -19,11 +19,11 @@ def sine_func(t, amplitude, omega, phase, offset):
 # --- 2. Set Up File and Experiment Parameters ---
 
 # Set the path to your oscilloscope data file
-file_path = 'C:/Users/Sell/Desktop/LecturasOsciloscopio/waveform_20251103_172843.csv' 
+file_path = 'C:/Users/Sell/Desktop/LecturasOsciloscopio/waveform_20251104_180301.csv' 
 
 # Set your known peak current (I_peak) based on your experiment
 # I_peak = 10V * 1nA/V = 10 nA = 10e-9 Amps
-i_peak = 10e-9  
+i_peak = 5e-9  
 
 # --- 3. Load and Prepare Data ---
 print(f"Loading data from '{file_path}'...")
