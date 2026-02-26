@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import matplotlib
 matplotlib.use('Agg') # Force non-interactive backend (Faster)
 import matplotlib.pyplot as plt
@@ -23,6 +25,13 @@ class SignalParameters:
         self.window_size_sec = window_size_sec
         self.voltage_min = voltage_min
         self.voltage_max = voltage_max
+
+@dataclass 
+class SignalParameters:
+    sample_rate: int = 10000
+    window_size_sec: float = 0.02
+    voltage_min: float = 0.0
+    voltage_max: float = 5.0
 
 def create_overlay(video_in, video_out, data_csv, timestamps_csv, signal_params:SignalParameters):
     print(f"Loading voltage data from {data_csv}...")
